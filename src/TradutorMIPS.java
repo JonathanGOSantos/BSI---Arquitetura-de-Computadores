@@ -4,14 +4,14 @@ import dominio.instrucoes.InstrucaoTipoR;
 
 public class TradutorMIPS {
     public String traduzir(InstrucaoTipoR instrucao) {
-        return null;
+        throw new UnsupportedOperationException("Método ainda não implementado.");
     }
 
     public String traduzir(InstrucaoTipoI instrucao) {
-        return null;
+        throw new UnsupportedOperationException("Método ainda não implementado.");
     }
 
     public String traduzir(InstrucaoTipoJ instrucao) {
-        return null;
+        throw new UnsupportedOperationException("Método ainda não implementado.");
     }
 }
