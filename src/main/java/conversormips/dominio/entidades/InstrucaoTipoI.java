@@ -1,4 +1,6 @@
-package dominio.instrucoes;
+package conversormips.dominio.entidades;
+
+import conversormips.utils.UtilitarioBinario;
 
 public class InstrucaoTipoI extends InstrucaoMIPS {
 
@@ -35,5 +37,15 @@ public class InstrucaoTipoI extends InstrucaoMIPS {
 
     public void setImmediate(int immediate) {
         this.immediate = immediate;
+    }
+
+    @Override
+    public String getBinario() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(UtilitarioBinario.parseInt(opCode, 6));
+        sb.append(UtilitarioBinario.parseInt(rs, 5));
+        sb.append(UtilitarioBinario.parseInt(rt, 5));
+        sb.append(UtilitarioBinario.parseInt(immediate, 16));
+        return sb.toString();
     }
 }

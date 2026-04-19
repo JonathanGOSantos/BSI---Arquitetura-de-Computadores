@@ -1,4 +1,6 @@
-package dominio.instrucoes;
+package conversormips.dominio.entidades;
+
+import conversormips.utils.UtilitarioBinario;
 
 public class InstrucaoTipoJ extends InstrucaoMIPS {
 
@@ -15,5 +17,13 @@ public class InstrucaoTipoJ extends InstrucaoMIPS {
 
     public void setAddress(int address) {
         this.address = address;
+    }
+
+    @Override
+    public String getBinario() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(UtilitarioBinario.parseInt(opCode, 6));
+        sb.append(UtilitarioBinario.parseInt(address, 26));
+        return sb.toString();
     }
 }
