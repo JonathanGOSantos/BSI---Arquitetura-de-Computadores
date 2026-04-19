@@ -10,6 +10,13 @@ O software foi desenvolvido como parte do **Trabalho 1** da disciplina de **Arqu
 - **Tradução Multi-formato:** Suporte para instruções dos tipos **R**, **I** e **J**.
 - **Geração de Resultados:** Produz arquivos de saída nomeados como `TESTE-XX-RESULTADO.txt` no mesmo diretório de entrada.
 
+## Exemplo:
+| Instrução MIPS (Entrada) | Resultado (Saída) |
+| :--- | :--- |
+| `lw $t0, 1200($t1)` | `10001101001010000000010010110000` |
+| `add $t0, $s2, $t0` | `00000010010010000100000000100000` |
+| `sw $t0, 1200($t1)` | `10101101001010000000010010110000` |
+
 ## 🛠️ Instruções Suportadas
 O montador é capaz de traduzir as seguintes instruções contidas no Anexo I do trabalho:
 - **Aritméticas/Lógicas:** ADD, SUB, AND, OR, XOR, ADDI, ANDI, ORI, XORI, LUI.
