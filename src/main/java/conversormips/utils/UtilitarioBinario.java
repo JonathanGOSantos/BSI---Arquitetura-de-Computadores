@@ -10,7 +10,10 @@ public class UtilitarioBinario {
      * @return número convertido para binário
      */
     public static String parseInt(int numero, int bits) {
-        String a = Integer.toBinaryString(numero);
-        return "0".repeat(bits - a.length()) + a;
+        String numeroBinario = Integer.toBinaryString(numero);
+        if (numeroBinario.startsWith("0")) { // Número positivo
+            return "0".repeat(bits - numeroBinario.length()) + numeroBinario; // Complementa os bits faltantes com 0
+        }
+        return numeroBinario.substring(32 - bits); // Número negativo
     }
 }
