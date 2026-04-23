@@ -21,17 +21,23 @@ public abstract class InstrucaoMIPS {
     public abstract String getBinario();
 
     public static InstrucaoMIPS fromTokens(Class<? extends InstrucaoMIPS> tipoInstrucao, String[] tokens) {
-        if (InstrucaoTipoR.class.equals(tipoInstrucao)) {   
+        if (InstrucaoTipoR.class.equals(tipoInstrucao)) {
             if (tokens.length != 4)
                 throw new IllegalArgumentException();
-            var instrucao = EnumInstrucoes.get(tokens[0]);
-            
-            var rs = EnumRegistradores.getCodigo(tokens[2]); // Fonte
-            var rt = EnumRegistradores.getCodigo(tokens[3]); // Fonte
-            var rd = EnumRegistradores.getCodigo(tokens[1]); // Destino
-            var shamt = 0;
-            var funct = InstrucaoTipoR.getFuncao(instrucao);
-            
+            EnumInstrucoes instrucao = EnumInstrucoes.get(tokens[0]);
+            int rd = 0, rs = 0, rt = 0, shamt = 0;
+            rd = EnumRegistradores.getCodigo(tokens[1]); // Destino
+
+            if (tokens[3].startsWith("$")) { // Registrador
+                rs = EnumRegistradores.getCodigo(tokens[2]); // Fonte
+                rt = EnumRegistradores.getCodigo(tokens[3]); // Fonte
+            } else { // Imediato
+                rt = EnumRegistradores.getCodigo(tokens[2]); // Fonte
+                shamt = Integer.parseInt(tokens[3]);
+            }
+
+            int funct = InstrucaoTipoR.getFuncao(instrucao);
+
             return new InstrucaoTipoR(rs, rt, rd, shamt, funct);
         }
 

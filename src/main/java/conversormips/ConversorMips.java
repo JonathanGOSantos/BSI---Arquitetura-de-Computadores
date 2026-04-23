@@ -13,13 +13,16 @@ public class ConversorMips {
         String caminho = "C:\\Teste_Arquitetura\\";
 
         for (int i = 1; i <= 2; i++) {
-            String nomeArquivo = "TESTE-0"+i;
-            conversor.gravarArquivo(caminho+nomeArquivo+"-RESULTADO.txt", conversor.processarLinhas(conversor.lerArquivo(caminho+nomeArquivo+".txt")));
+            String nomeArquivo = "TESTE-0" + i;
+            conversor.gravarArquivo(caminho + nomeArquivo + "-RESULTADO.txt",
+                    conversor.processarLinhas(conversor.lerArquivo(caminho + nomeArquivo +
+                            ".txt")));
         }
     }
-    public List<String> processarLinhas(List<String> linhas){
+
+    public List<String> processarLinhas(List<String> linhas) {
         List<String> linhasBinarias = new ArrayList<>();
-        for (String linha: linhas){
+        for (String linha : linhas) {
             linhasBinarias.add(processarLinha(linha).getBinario());
         }
         return linhasBinarias;
@@ -27,13 +30,14 @@ public class ConversorMips {
 
     public List<String> lerArquivo(String caminho) {
         List<String> linhas = new ArrayList<>();
-        try(BufferedReader  br = new BufferedReader(new FileReader(caminho))){
+        try (BufferedReader br = new BufferedReader(new FileReader(caminho))) {
             String linha = br.readLine();
-            while(linha != null){
+            while (linha != null) {
                 linhas.add(linha);
+                linha = br.readLine();
             }
 
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return linhas;
@@ -41,13 +45,12 @@ public class ConversorMips {
     }
 
     public void gravarArquivo(String caminho, List<String> linhas) {
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter(caminho))){
-            for (String linha: linhas){
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(caminho))) {
+            for (String linha : linhas) {
                 bw.write(linha);
                 bw.newLine();
             }
-
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException();
         }
 
@@ -59,7 +62,6 @@ public class ConversorMips {
         EnumInstrucoes instrucao = EnumInstrucoes.get(tokens[0]);
         if (instrucao == null)
             throw new IllegalArgumentException();
-
         return InstrucaoMIPS.fromTokens(instrucao.getTipo(), tokens);
     }
 }
