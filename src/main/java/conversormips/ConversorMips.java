@@ -6,17 +6,19 @@ import java.util.List;
 
 import conversormips.dominio.entidades.InstrucaoMIPS;
 import conversormips.dominio.enums.EnumInstrucoes;
+import conversormips.utils.CaminhoArquivo;
 
 public class ConversorMips {
+    private static final String diretorio = "C:\\Teste_Arquitetura\\";
+
     public static void main(String[] args) {
         ConversorMips conversor = new ConversorMips();
-        String caminho = "C:\\Teste_Arquitetura\\";
 
-        for (int i = 1; i <= 2; i++) {
-            String nomeArquivo = "TESTE-0" + i;
-            conversor.gravarArquivo(caminho + nomeArquivo + "-RESULTADO.txt",
-                    conversor.processarLinhas(conversor.lerArquivo(caminho + nomeArquivo +
-                            ".txt")));
+        for (int i = 1; i <= 10; i++) {
+            CaminhoArquivo caminho = new CaminhoArquivo(diretorio, "TESTE-" + String.format("%02d", i), "txt");
+            List<String> linhasArquivo = conversor.lerArquivo(caminho.getCaminhoCompleto());
+            List<String> linhasBinarias = conversor.processarLinhas(linhasArquivo);
+            conversor.gravarArquivo(caminho.getCaminhoCompletoResultado(), linhasBinarias);
         }
     }
 
