@@ -11,9 +11,15 @@ public class UtilitarioBinario {
      */
     public static String parseInt(int numero, int bits) {
         String numeroBinario = Integer.toBinaryString(numero);
-        if (numeroBinario.startsWith("0")) { // Número positivo
-            return "0".repeat(bits - numeroBinario.length()) + numeroBinario; // Complementa os bits faltantes com 0
+        // System.out.println("Número: " + numero);
+        // System.out.println("Bits: " + "0".repeat(bits));
+        String out;
+        if (numeroBinario.length() != 32) { // Número positivo
+            out = "0".repeat(bits - numeroBinario.length()) + numeroBinario;
+            // System.out.println("Binario: " + out);
+            return out; // Complementa os bits faltantes com 0
         }
+        // System.out.println("Binario: " + numeroBinario);
         return numeroBinario.substring(32 - bits); // Número negativo
     }
 }
