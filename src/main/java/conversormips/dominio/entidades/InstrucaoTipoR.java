@@ -14,6 +14,8 @@ public class InstrucaoTipoR extends InstrucaoMIPS {
         functs.put(EnumInstrucoes.AND, 36);
         functs.put(EnumInstrucoes.OR, 37);
         functs.put(EnumInstrucoes.XOR, 38);
+        functs.put(EnumInstrucoes.SLL, 0);
+        functs.put(EnumInstrucoes.SRL, 2);
     }
 
     private final int rs;
@@ -34,15 +36,19 @@ public class InstrucaoTipoR extends InstrucaoMIPS {
     public int getRs() {
         return rs;
     }
+
     public int getRt() {
         return rt;
     }
+
     public int getRd() {
         return rd;
     }
+
     public int getShamt() {
         return shamt;
     }
+
     public int getFunct() {
         return funct;
     }
