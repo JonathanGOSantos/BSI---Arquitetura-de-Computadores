@@ -1,13 +1,14 @@
 package contadormips.dominio.entidades;
 
+import contadormips.dominio.enums.EnumInstrucoes;
 import contadormips.utils.UtilitarioBinario;
 
 public class InstrucaoTipoJ extends InstrucaoMIPS {
 
     private int address;
 
-    public InstrucaoTipoJ(int opCode, int address) {
-        super(opCode);
+    public InstrucaoTipoJ(EnumInstrucoes instrucao, int opCode, int address) {
+        super(instrucao, opCode);
         this.address = address;
     }
 

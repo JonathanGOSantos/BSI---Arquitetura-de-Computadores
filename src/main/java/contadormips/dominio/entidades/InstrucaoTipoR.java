@@ -25,8 +25,8 @@ public class InstrucaoTipoR extends InstrucaoMIPS {
     protected final int shamt;
     protected final int funct;
 
-    public InstrucaoTipoR(int rs, int rt, int rd, int shamt, int funct) {
-        super(0);
+    public InstrucaoTipoR(EnumInstrucoes instrucao, int rs, int rt, int rd, int shamt, int funct) {
+        super(instrucao, 0);
         this.rs = rs;
         this.rt = rt;
         this.rd = rd;

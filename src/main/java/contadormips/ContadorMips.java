@@ -9,61 +9,102 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import contadormips.dominio.entidades.InstrucaoEscritaNaMemoria;
 import contadormips.dominio.entidades.InstrucaoMIPS;
+import contadormips.dominio.entidades.InstrucaoTipoI;
+import contadormips.dominio.entidades.InstrucaoTipoR;
 import contadormips.dominio.enums.EnumInstrucoes;
 import contadormips.dominio.enums.EnumRegistradores;
 import contadormips.utils.CaminhoArquivo;
 
 public class ContadorMips {
-    private static final String diretorio = "C:\\Teste_Arquitetura\\";
+    private static final String diretorio = "/home/jonathan/estudos/Arquitetura de Computadores/Arquitetura-de-Computadores/src/test/";
     private Queue<InstrucaoMIPS> fila;
     private Map<Integer, Integer> tempoParaUso;
 
     public ContadorMips() {
         this.fila = new LinkedList<>();
         this.tempoParaUso = new HashMap<>();
-
-        for (EnumRegistradores registrador : EnumRegistradores.values()) {
-            tempoParaUso.putIfAbsent(registrador.getCodigo(), 0);
-        }
+        resetarTempoDeUso();
     }
 
     public static void main(String[] args) {
         (new ContadorMips()).run();
     }
 
-    public void run() {
-        for (int i = 1; i <= 10; i++) {
-            CaminhoArquivo caminho = new CaminhoArquivo(diretorio, "TESTE-" + String.format("%02d", i), "txt");
-            List<String> linhas = lerArquivo(caminho.getCaminhoCompleto());
-            int ciclos = processarLinhas(linhas);
-
-            // lw $s1, 1200($zero)
-            // bolha
-            // bolha
-            // add $t0, $s1, $s2
+    private void resetarTempoDeUso() {
+        for (EnumRegistradores registrador : EnumRegistradores.values()) {
+            tempoParaUso.put(registrador.getCodigo(), 0);
         }
     }
-    
-    public int processarLinhas(List<String> linhas) {
-        Iterator<String> it = linhas.iterator();
-        String linha = it.next();
-        while (it.hasNext()) {
-            InstrucaoMIPS instrucao = processarLinha(linha);
-            if (instrucao instanceof InstrucaoEscritaNaMemoria i) {
-                int destino = i.getRs();
-                tempoParaUso.put(destino, 2);
+
+    public void run() {
+        for (int i = 1; i <= 10; i++) {
+            try {
+                CaminhoArquivo caminho = new CaminhoArquivo(diretorio, "TESTE-" + String.format("%02d", i), "txt");
+                List<String> linhas = lerArquivo(caminho.getCaminhoCompleto());
+                int ciclos = processarLinhas(linhas);
+                System.out.println(ciclos);    
+            } catch (Exception e) {
+                continue;    
             }
         }
+    }
 
-        return 0;
+    public int processarLinhas(List<String> linhas) {
+        resetarTempoDeUso();
+        int bolhas = 0;
+
+        Iterator<String> it = linhas.iterator();
+        while (it.hasNext()) {
+            InstrucaoMIPS instrucao = processarLinha(it.next());
+            if (instrucao instanceof InstrucaoTipoR tipoR) {
+                var reg1 = tipoR.getRd();
+                var reg2 = tipoR.getRs();
+                var reg3 = tipoR.getRt();
+
+                if (tipoR.getInstrucao().leRegistrador()) {
+                    int atraso = Math.max(tempoParaUso.get(reg2), tempoParaUso.get(reg3));
+                    bolhas += atraso;
+                    for (int i = 0; i < atraso; i++) {
+                        diminuirTempoDeUso();
+                    }
+                }
+
+                if (tipoR.getInstrucao().escreveRegistrador()) {
+                    tempoParaUso.put(reg1, 1);
+                }
+            } else if (instrucao instanceof InstrucaoTipoI tipoI) {
+                var reg1 = tipoI.getRs(); // Leitura
+                var reg2 = tipoI.getRt(); // Leitura / Escrita
+
+                if (tipoI.getInstrucao().leRegistrador()) {
+                    int atraso = tempoParaUso.get(reg1);
+
+                    if (!tipoI.getInstrucao().escreveRegistrador() && tempoParaUso.get(reg2) > 0) {
+                        atraso = Math.max(tempoParaUso.get(reg1), tempoParaUso.get(reg2));
+                    }
+                    
+                    bolhas += atraso;
+                    for (int i = 0; i < atraso; i++) {
+                        diminuirTempoDeUso();
+                    }
+                }
+
+                if (tipoI.getInstrucao().leMemoria()) {
+                    tempoParaUso.put(reg2, 2);
+                } else if (tipoI.getInstrucao().escreveRegistrador()) {
+                    tempoParaUso.put(reg2, 1);
+                }
+            }
+            diminuirTempoDeUso();
+        }
+
+        return bolhas + linhas.size() + 4;
     }
 
     public void diminuirTempoDeUso() {
         for (EnumRegistradores registrador : EnumRegistradores.values()) {
-            int tempoAtual = tempoParaUso.get(registrador.getCodigo());
-            tempoParaUso.put(registrador.getCodigo(), Math.min(0, tempoAtual - 1));
+            tempoParaUso.compute(registrador.getCodigo(), (k, tempoAtual) -> Math.max(0, tempoAtual - 1));
         }
     }
 

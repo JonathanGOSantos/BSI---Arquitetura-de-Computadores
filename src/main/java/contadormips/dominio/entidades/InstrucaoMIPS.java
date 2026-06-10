@@ -4,10 +4,16 @@ import contadormips.dominio.enums.EnumInstrucoes;
 import contadormips.dominio.enums.EnumRegistradores;
 
 public abstract class InstrucaoMIPS {
+    protected EnumInstrucoes instrucao;
     protected int opCode;
 
-    public InstrucaoMIPS(int opCode) {
+    public InstrucaoMIPS(EnumInstrucoes instrucao, int opCode) {
+        this.instrucao = instrucao;
         this.opCode = opCode;
+    }
+
+    public EnumInstrucoes getInstrucao() {
+        return instrucao;
     }
 
     public int getOpCode() {
@@ -27,7 +33,7 @@ public abstract class InstrucaoMIPS {
             if (tokens.length == 2) {
                 // Jump Register
                 rs = EnumRegistradores.getCodigo(tokens[1]);
-            } else if (!tokens[3].startsWith("$")) {
+            } else if (tokens[3].startsWith("$")) {
                 // Aritimetica
                 rd = EnumRegistradores.getCodigo(tokens[1]);
                 rs = EnumRegistradores.getCodigo(tokens[2]);
@@ -41,7 +47,7 @@ public abstract class InstrucaoMIPS {
             
             int funct = InstrucaoTipoR.getFuncao(instrucao);
 
-            return new InstrucaoTipoR(rs, rt, rd, shamt, funct);
+            return new InstrucaoTipoR(instrucao, rs, rt, rd, shamt, funct);
         }
 
         if (InstrucaoTipoI.class.equals(tipoInstrucao)) {
@@ -64,7 +70,7 @@ public abstract class InstrucaoMIPS {
                 immediate = Integer.parseInt(tokens[3]); // Fonte
             }
 
-            return new InstrucaoTipoI(opCode, rs, rt, immediate);
+            return new InstrucaoTipoI(instrucao, opCode, rs, rt, immediate);
         }
 
         if (InstrucaoTipoJ.class.equals(tipoInstrucao)) {
@@ -72,7 +78,7 @@ public abstract class InstrucaoMIPS {
             var opCode = instrucao.getOpCode();
             var address = Integer.parseInt(tokens[1]);
 
-            return new InstrucaoTipoJ(opCode, address);
+            return new InstrucaoTipoJ(instrucao, opCode, address);
         }
 
         throw new IllegalArgumentException("Instrução " + tokens[0] + " não encontrada!");

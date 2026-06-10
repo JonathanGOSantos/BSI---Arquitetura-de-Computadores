@@ -1,5 +1,6 @@
 package contadormips.dominio.entidades;
 
+import contadormips.dominio.enums.EnumInstrucoes;
 import contadormips.utils.UtilitarioBinario;
 
 public class InstrucaoTipoI extends InstrucaoMIPS {
@@ -8,8 +9,8 @@ public class InstrucaoTipoI extends InstrucaoMIPS {
     private int rt;
     private int immediate;
 
-    public InstrucaoTipoI(int opCode, int rs, int rt, int immediate) {
-        super(opCode);
+    public InstrucaoTipoI(EnumInstrucoes instrucao, int opCode, int rs, int rt, int immediate) {
+        super(instrucao, opCode);
         this.rs = rs;
         this.rt = rt;
         this.immediate = immediate;
