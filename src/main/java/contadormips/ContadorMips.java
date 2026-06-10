@@ -4,11 +4,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-
 import contadormips.dominio.entidades.InstrucaoMIPS;
 import contadormips.dominio.entidades.InstrucaoTipoI;
 import contadormips.dominio.entidades.InstrucaoTipoR;
@@ -18,11 +15,9 @@ import contadormips.utils.CaminhoArquivo;
 
 public class ContadorMips {
     private static final String diretorio = "/home/jonathan/estudos/Arquitetura de Computadores/Arquitetura-de-Computadores/src/test/";
-    private Queue<InstrucaoMIPS> fila;
     private Map<Integer, Integer> tempoParaUso;
 
     public ContadorMips() {
-        this.fila = new LinkedList<>();
         this.tempoParaUso = new HashMap<>();
         resetarTempoDeUso();
     }
@@ -39,14 +34,10 @@ public class ContadorMips {
 
     public void run() {
         for (int i = 1; i <= 10; i++) {
-            try {
-                CaminhoArquivo caminho = new CaminhoArquivo(diretorio, "TESTE-" + String.format("%02d", i), "txt");
-                List<String> linhas = lerArquivo(caminho.getCaminhoCompleto());
-                int ciclos = processarLinhas(linhas);
-                System.out.println(ciclos);    
-            } catch (Exception e) {
-                continue;    
-            }
+            CaminhoArquivo caminho = new CaminhoArquivo(diretorio, "TESTE-" + String.format("%02d", i), "txt");
+            List<String> linhas = lerArquivo(caminho.getCaminhoCompleto());
+            int ciclos = processarLinhas(linhas);
+            gravarArquivo(caminho.getCaminhoCompletoResultado(), ciclos);
         }
     }
 
@@ -56,49 +47,52 @@ public class ContadorMips {
 
         Iterator<String> it = linhas.iterator();
         while (it.hasNext()) {
-            InstrucaoMIPS instrucao = processarLinha(it.next());
-            if (instrucao instanceof InstrucaoTipoR tipoR) {
-                var reg1 = tipoR.getRd();
-                var reg2 = tipoR.getRs();
-                var reg3 = tipoR.getRt();
+            try {
+                InstrucaoMIPS instrucao = processarLinha(it.next());
+                if (instrucao instanceof InstrucaoTipoR tipoR) {
+                    var reg1 = tipoR.getRd();
+                    var reg2 = tipoR.getRs();
+                    var reg3 = tipoR.getRt();
 
-                if (tipoR.getInstrucao().leRegistrador()) {
-                    int atraso = Math.max(tempoParaUso.get(reg2), tempoParaUso.get(reg3));
-                    bolhas += atraso;
-                    for (int i = 0; i < atraso; i++) {
-                        diminuirTempoDeUso();
+                    if (tipoR.getInstrucao().leRegistrador()) {
+                        int atraso = Math.max(tempoParaUso.get(reg2), tempoParaUso.get(reg3));
+                        bolhas += atraso;
+                        for (int i = 0; i < atraso; i++) {
+                            diminuirTempoDeUso();
+                        }
+                    }
+
+                    if (tipoR.getInstrucao().escreveRegistrador()) {
+                        tempoParaUso.put(reg1, 1);
+                    }
+                } else if (instrucao instanceof InstrucaoTipoI tipoI) {
+                    var reg1 = tipoI.getRs(); // Leitura
+                    var reg2 = tipoI.getRt(); // Leitura / Escrita
+
+                    if (tipoI.getInstrucao().leRegistrador()) {
+                        int atraso = tempoParaUso.get(reg1);
+
+                        if (!tipoI.getInstrucao().escreveRegistrador() && tempoParaUso.get(reg2) > 0) {
+                            atraso = Math.max(tempoParaUso.get(reg1), tempoParaUso.get(reg2));
+                        }
+
+                        bolhas += atraso;
+                        for (int i = 0; i < atraso; i++) {
+                            diminuirTempoDeUso();
+                        }
+                    }
+
+                    if (tipoI.getInstrucao().leMemoria()) {
+                        tempoParaUso.put(reg2, 2);
+                    } else if (tipoI.getInstrucao().escreveRegistrador()) {
+                        tempoParaUso.put(reg2, 1);
                     }
                 }
-
-                if (tipoR.getInstrucao().escreveRegistrador()) {
-                    tempoParaUso.put(reg1, 1);
-                }
-            } else if (instrucao instanceof InstrucaoTipoI tipoI) {
-                var reg1 = tipoI.getRs(); // Leitura
-                var reg2 = tipoI.getRt(); // Leitura / Escrita
-
-                if (tipoI.getInstrucao().leRegistrador()) {
-                    int atraso = tempoParaUso.get(reg1);
-
-                    if (!tipoI.getInstrucao().escreveRegistrador() && tempoParaUso.get(reg2) > 0) {
-                        atraso = Math.max(tempoParaUso.get(reg1), tempoParaUso.get(reg2));
-                    }
-                    
-                    bolhas += atraso;
-                    for (int i = 0; i < atraso; i++) {
-                        diminuirTempoDeUso();
-                    }
-                }
-
-                if (tipoI.getInstrucao().leMemoria()) {
-                    tempoParaUso.put(reg2, 2);
-                } else if (tipoI.getInstrucao().escreveRegistrador()) {
-                    tempoParaUso.put(reg2, 1);
-                }
+                diminuirTempoDeUso();
+            } catch (Exception e) {
+                continue;
             }
-            diminuirTempoDeUso();
         }
-
         return bolhas + linhas.size() + 4;
     }
 
@@ -123,12 +117,9 @@ public class ContadorMips {
         return linhas;
     }
 
-    public void gravarArquivo(String caminho, List<String> linhas) {
+    public void gravarArquivo(String caminho, int ciclos) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(caminho))) {
-            for (String linha : linhas) {
-                bw.write(linha);
-                bw.newLine();
-            }
+            bw.write(Integer.toString(ciclos));
         } catch (IOException e) {
             throw new RuntimeException();
         }
